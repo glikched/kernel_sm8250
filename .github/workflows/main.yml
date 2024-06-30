@@ -8,7 +8,7 @@ on:
       - 'android-14'
 
 jobs:
-  build_aqua:
+  build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
