@@ -1,0 +1,51 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - 'android-14'
+
+jobs:
+  build_aqua:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up build environment
+        run: |
+          sudo apt update
+          DEBIAN_FRONTEND=noninteractive sudo apt install -yq \
+            attr ccache clang golang libbrotli-dev \
+            libgtest-dev libprotobuf-dev libunwind-dev libusb-1.0-0-dev libzstd-dev \
+            linux-modules-extra-$(uname -r) build-essential lld ninja-build protobuf-compiler zipalign gcc-aarch64-linux-gnu libc6-dev libarchive-tools
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Build Kernel Clean
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+        run: |
+          wget -q https://gist.githubusercontent.com/glikched/3d559b6bf07aa2f177f93416e66becaa/raw/c8b43bab939391f05db512c8f4cf62b3a469516d/build.sh
+          chmod +x ./build.sh
+          source ./build.sh
+          cp ./AnyKernel3/Aeretrea* ./
+
+      - name: Publish to GitHub
+        id: release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: Aeretrea*
+          name: Aeretrea-CI_${{ github.run_number }}
+          tag_name: ${{ github.run_number }}
+          body: |
+            - **Run Number:** ${{ github.run_number }}
+
+            :rocket: *Built with love by GitHub Actions.*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
