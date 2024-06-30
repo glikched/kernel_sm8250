@@ -34,7 +34,6 @@ jobs:
           wget -q https://gist.githubusercontent.com/glikched/3d559b6bf07aa2f177f93416e66becaa/raw/c8b43bab939391f05db512c8f4cf62b3a469516d/build.sh
           chmod +x ./build.sh
           source ./build.sh
-          cp ./AnyKernel3/Aeretrea* ./
 
       - name: Publish to GitHub
         id: release
